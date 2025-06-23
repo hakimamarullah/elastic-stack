@@ -5,7 +5,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=true
-      - ELASTIC_PASSWORD=changeme
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
     ports:
       - "9200:9200"
@@ -17,7 +17,7 @@ services:
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL3Rva2VuX1otRERtcGNCNHdabXZYTHpfZnJFOkVqcUc5amJYVE9hcmx1c2Y5ZTBPWnc  # This will be replaced
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=${SVC_ACCOUNT_TOKEN_KIBANA}  # This will be replaced
     ports:
       - "5601:5601"
     depends_on:
@@ -34,8 +34,8 @@ services:
         filebeat --strict.perms=true
       "
     environment:
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=changeme
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
     depends_on:
       - elasticsearch
     volumes:
