@@ -1,0 +1,65 @@
+filebeat.inputs:
+  - type: filestream
+    id: my-filestream
+    enabled: true
+    paths:
+      - /usr/share/filebeat/input-logs/*.log
+    multiline.pattern: '^\s*trace_id:'
+    multiline.negate: true
+    multiline.match: after
+
+    processors:
+      # Extract service name from full filename
+      - script:
+          lang: javascript
+          source: >
+            function process(event) {
+              var filePath = event.Get("log.file.path");
+              if (filePath) {
+                var fileName = filePath.split("/").pop();  // Get filename
+                var baseName = fileName.replace(/\.log$/, "");  // Remove .log extension
+                event.Put("service.name", baseName);
+              }
+            }
+
+      - grok:
+          field: message
+          patterns:
+            - 'trace_id: %{DATA:trace_id} \| span_id: %{DATA:span_id} \| %{DATE:log_date} %{TIME:log_time} \[%{DATA:thread}\] %{LOGLEVEL:log.level} %{DATA:logger} - %{GREEDYDATA:log.message}'
+          ignore_missing: true
+          ignore_failure: true  # Add this
+
+      - remove_fields: 
+          fields: ["log.file", "input", "host", "agent", "ecs", "log_date", "log_time", "custom"]
+          ignore_missing: true
+
+# Template setup
+setup.template.name: "starline"
+setup.template.pattern: "starline-*"
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 0
+setup.ilm.enabled: false  # Disable ILM for custom index names
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]  # Remove http:// prefix
+  index: "starline-%{[service.name]}"
+  username: "elastic"
+  password: "changeme"
+  template.enabled: true
+  template.name: "starline"
+  template.pattern: "starline-*"
+
+setup.kibana:
+  host: "kibana:5601"
+  username: "elastic"
+  password: "changeme"
+
+# Enhanced logging for debugging
+logging.level: debug  # Change to debug for more details
+logging.to_files: true
+logging.files:
+  path: /usr/share/filebeat/logs
+  name: filebeat
+  keepfiles: 3
+  permissions: 0644
