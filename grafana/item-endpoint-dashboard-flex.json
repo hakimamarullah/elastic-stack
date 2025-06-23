@@ -1,0 +1,337 @@
+{
+  "title": "Item Endpoint - Latency, Memory, CPU, GC (Flex Layout)",
+  "timezone": "browser",
+  "refresh": "10s",
+  "schemaVersion": 37,
+  "version": 3,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Heap Memory Used",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{area=\"heap\"}",
+          "legendFormat": "heap_memory_used",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Heap Memory Max",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "jvm_memory_max_bytes{area=\"heap\"}",
+          "legendFormat": "heap_memory_max",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Rate - /v1/items",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{uri=~\"/v1/items.*\"}[1m])",
+          "legendFormat": "request_rate_-_/v1/items",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Latency - /v1/items",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_sum{uri=~\"/v1/items.*\"}[1m]) / rate(http_server_requests_seconds_count{uri=~\"/v1/items.*\"}[1m])",
+          "legendFormat": "average_latency_-_/v1/items",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "P99 Latency - /v1/items",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{uri=~\"/v1/items.*\"}[5m]))",
+          "legendFormat": "p99_latency_-_/v1/items",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Max Latency - Last 1h",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "max_over_time(http_server_requests_seconds_max{uri=~\"/v1/items.*\"}[60m])",
+          "legendFormat": "max_latency_-_last_1h",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "5xx Error Rate - /v1/items",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{uri=~\"/v1/items.*\", status=~\"5..\"}[1m])",
+          "legendFormat": "5xx_error_rate_-_/v1/items",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "2xx Success Rate - /v1/items",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{uri=~\"/v1/items.*\", status=~\"2..\"}[1m])",
+          "legendFormat": "2xx_success_rate_-_/v1/items",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Process CPU Usage",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "expr": "process_cpu_usage",
+          "legendFormat": "process_cpu_usage",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "System CPU Usage",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "targets": [
+        {
+          "expr": "system_cpu_usage",
+          "legendFormat": "system_cpu_usage",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM GC Time",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(jvm_gc_pause_seconds_sum[1m])) by (gc)",
+          "legendFormat": "jvm_gc_time",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "JVM GC Count",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(jvm_gc_pause_seconds_count[1m])) by (gc)",
+          "legendFormat": "jvm_gc_count",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "eeptcc7tepg5cf"
+      }
+    }
+  ],
+  "datasource": {
+    "type": "prometheus",
+    "uid": "eeptcc7tepg5cf"
+  }
+}
