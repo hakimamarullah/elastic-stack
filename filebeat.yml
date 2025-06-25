@@ -4,21 +4,24 @@ filebeat.inputs:
     enabled: true
     paths:
       - /usr/share/filebeat/input-logs/*.log
+
     multiline.pattern: '^\s*trace_id:'
     multiline.negate: true
     multiline.match: after
 
     processors:
-      # Extract service name from full filename
+      # Extract service name from filename
       - script:
           lang: javascript
           source: >
             function process(event) {
               var filePath = event.Get("log.file.path");
               if (filePath) {
-                var fileName = filePath.split("/").pop();
-                var baseName = fileName.replace(/\.log$/, "");
-                event.Put("service.name", baseName);
+                var fileName = filePath.split("/").pop(); // e.g., app-hibernate-UUID.log
+                if (fileName) {
+                  var baseName = fileName.replace(/\.log(\.gz)?$/, "").split("@")[0];
+                  event.Put("service.name", baseName); // Result: app or app-hibernate
+                }
               }
             }
 
@@ -27,11 +30,11 @@ filebeat.inputs:
           field: "message"
           ignore_failure: true
 
-      - drop_fields: 
+      - drop_fields:
           fields: ["log.file.path", "input.type"]
           ignore_missing: true
 
-# Template setup - Use ONLY the setup section
+# Template setup
 setup.template.enabled: true
 setup.template.name: "starline"
 setup.template.pattern: "starline-*"
@@ -39,7 +42,7 @@ setup.template.settings:
   index.number_of_shards: 1
   index.number_of_replicas: 0
 
-# Disable ILM since you're using custom index names
+# Disable ILM
 setup.ilm.enabled: false
 
 output.elasticsearch:
@@ -47,13 +50,12 @@ output.elasticsearch:
   index: "starline-%{[service.name]}"
   username: "${ELASTICSEARCH_USERNAME}"
   password: "${ELASTICSEARCH_PASSWORD}"
-  # Remove template settings from here - they belong in setup section
 
 setup.kibana:
   host: "kibana:5601"
   username: "${ELASTICSEARCH_USERNAME}"
   password: "${ELASTICSEARCH_PASSWORD}"
 
-# Enhanced logging for debugging
+# Logging
 logging.level: info
 logging.to_stderr: true
