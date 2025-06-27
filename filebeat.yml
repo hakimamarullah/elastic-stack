@@ -5,22 +5,24 @@ filebeat.inputs:
     paths:
       - /usr/share/filebeat/input-logs/*.log
 
-    multiline.pattern: '^\s*trace_id:'
-    multiline.negate: true
-    multiline.match: after
+    parsers:
+      - multiline:
+          type: pattern
+          pattern: '^trace_id:'
+          negate: true
+          match: after
 
     processors:
-      # Extract service name from filename
       - script:
           lang: javascript
           source: >
             function process(event) {
               var filePath = event.Get("log.file.path");
               if (filePath) {
-                var fileName = filePath.split("/").pop(); // e.g., app-hibernate-UUID.log
+                var fileName = filePath.split("/").pop();
                 if (fileName) {
                   var baseName = fileName.replace(/\.log(\.gz)?$/, "").split("@")[0];
-                  event.Put("service.name", baseName); // Result: app or app-hibernate
+                  event.Put("service.name", baseName);
                 }
               }
             }
