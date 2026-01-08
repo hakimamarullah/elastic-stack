@@ -1,2 +1,11 @@
 curl --location --request POST 'http://localhost:9200/_security/service/elastic/kibana/credential/token' \
---header 'Authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ=='
+--header 'Authorization: Basic ZWxhc3RpYzplbGFzdGlj'
+
+bin/elasticsearch-service-tokens create elastic/kibana kibana-token
+bin/kibana-encryption-keys generate
+
+xpack.encryptedSavedObjects.encryptionKey: 46bf2379e7a871b5bd5453066985ad7a
+xpack.reporting.encryptionKey: 60960164be11bf995ba9eaa0b09d1268
+xpack.security.encryptionKey: a775d5668131d94ed48b0b739e81b743
+
+docker-compose exec -it elasticsearch curl -u elastic:changeme -X POST http://localhost:9200/_security/service/elastic/kibana/credential/token

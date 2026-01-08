@@ -1,6 +1,8 @@
+name: ELK Stack
+
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -13,10 +15,13 @@ services:
       - esdata:/usr/share/elasticsearch/data
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:9.0.0
+    image: docker.elastic.co/kibana/kibana:9.2.3
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY}
+      - XPACK_REPORTING_ENCRYPTIONKEY=${XPACK_REPORTING_ENCRYPTIONKEY}
+      - XPACK_SECURITY_ENCRYPTIONKEY=${XPACK_SECURITY_ENCRYPTIONKEY}
       - ELASTICSEARCH_SERVICEACCOUNTTOKEN=${SVC_ACCOUNT_TOKEN_KIBANA}  # This will be replaced
     ports:
       - "5601:5601"
@@ -24,7 +29,7 @@ services:
       - elasticsearch
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:9.0.0
+    image: docker.elastic.co/beats/filebeat:9.2.3
     container_name: filebeat
     user: root
     command: >
@@ -39,7 +44,7 @@ services:
     depends_on:
       - elasticsearch
     volumes:
-      - ./logs:/usr/share/filebeat/input-logs:ro
+      - /e/silverlake/ereward/data/logs:/usr/share/filebeat/input-logs:ro
       - ./filebeat.yml:/tmp/filebeat.yml:ro  # Mount to /tmp first
       - filebeat-data:/usr/share/filebeat/data
 

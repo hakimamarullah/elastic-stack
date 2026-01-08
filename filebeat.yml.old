@@ -8,7 +8,7 @@ filebeat.inputs:
     parsers:
       - multiline:
           type: pattern
-          pattern: '^\[trace_id:'
+          pattern: '^trace_id:'
           negate: true
           match: after
 
@@ -21,14 +21,14 @@ filebeat.inputs:
               if (filePath) {
                 var fileName = filePath.split("/").pop();
                 if (fileName) {
-                  var baseName = fileName.replace(/\.log(\.gz)?$/, "");
+                  var baseName = fileName.replace(/\.log(\.gz)?$/, "").split("@")[0];
                   event.Put("service.name", baseName);
                 }
               }
             }
 
       - dissect:
-          tokenizer: '[trace_id: %{trace_id}, span_id: %{span_id}] %{timestamp} %{log.level} %{pid} --- [%{thread}] %{logger} : %{log.message}'
+          tokenizer: 'trace_id: %{trace_id} | span_id: %{span_id} | %{log_date} %{log_time} [%{thread}] %{log.level} %{logger} - %{log.message}'
           field: "message"
           ignore_failure: true
 
@@ -38,8 +38,8 @@ filebeat.inputs:
 
 # Template setup
 setup.template.enabled: true
-setup.template.name: "microservices"
-setup.template.pattern: "microservices-*"
+setup.template.name: "starline"
+setup.template.pattern: "starline-*"
 setup.template.settings:
   index.number_of_shards: 1
   index.number_of_replicas: 0
