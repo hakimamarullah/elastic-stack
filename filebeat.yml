@@ -26,14 +26,33 @@ filebeat.inputs:
                 }
               }
             }
-
+      
       - dissect:
-          tokenizer: '[trace_id: %{trace_id}, span_id: %{span_id}] %{timestamp} %{log.level} %{pid} --- [%{thread}] %{logger} : %{log.message}'
+          tokenizer: '[trace_id: %{trace_id}, span_id: %{span_id}] %{timestamp->} %{log.level->} %{pid} --- [%{thread}] %{logger->} : %{log.message}'
           field: "message"
           ignore_failure: true
-
+      
+      - dissect:
+          tokenizer: '%{request_info} | %{trace_id_repeat} | RESPONSE: %{response_json}'
+          field: "log.message"
+          ignore_failure: true
+      
+      - decode_json_fields:
+          fields: ["response_json"]
+          target: "response"
+          overwrite_keys: true
+          add_error_key: false
+          process_array: false
+      
+      - rename:
+          fields:
+            - from: "response.responseCode"
+              to: "responseCode"
+          ignore_missing: true
+          fail_on_error: false
+      
       - drop_fields:
-          fields: ["log.file.path", "input.type"]
+          fields: ["log.file.path", "input.type", "response_json"]
           ignore_missing: true
 
 # Template setup
