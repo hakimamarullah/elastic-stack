@@ -61,3 +61,5 @@ setup.kibana:
 # Logging
 logging.level: info
 logging.to_stderr: true
+
+# [trace_id: %{trace_id}, span_id: %{span_id}] %{date} %{time} %{log.level->} %{pid->} --- [%{thread}] %{logger->} : %{log.message}
